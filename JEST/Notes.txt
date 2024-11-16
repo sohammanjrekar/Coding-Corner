@@ -1,0 +1,39 @@
+test(name, fn, timeout):
+
+Defines a test case with a given name and a function that contains the test assertions.
+Optionally, you can specify a timeout for the test case.
+expect(value):
+
+Used within a test case to define assertions on a given value.
+Chained with various matcher functions to check for specific conditions (e.g., toEqual, toBeTruthy, toBeFalsy, etc.).
+beforeAll(fn, timeout), afterAll(fn, timeout), beforeEach(fn, timeout), afterEach(fn, timeout):
+
+Lifecycle methods to run setup and teardown functions before/after all or each test case.
+describe(name, fn), describe.each(table)(name, fn):
+
+Groups multiple test cases under a common name or condition.
+Allows for nested describe blocks to organize tests hierarchically.
+it.each(table)(name, fn, timeout):
+
+Similar to the test function but allows parameterized tests by running the same test with different input values specified in a table.
+expect.assertions(num):
+
+Ensures that a certain number of assertions are performed within a test case.
+Useful for asynchronous tests to verify that all expected assertions are executed.
+toMatch(patternOrRegExp), toContain(item):
+
+Matchers for checking string matching or array inclusion.
+toThrow(error), toThrowErrorMatchingSnapshot():
+
+Matchers for checking if a function throws an error or if the thrown error matches a snapshot.
+jest.fn(implementation):
+
+Creates a mock function for spying, stubbing, or mocking function calls.
+jest.mock(moduleName, factory, options), jest.requireActual(moduleName):
+
+Mocking functions and modules for testing.
+jest.setTimeout(timeout), jest.setInterval(interval):
+Configures the default timeout and interval for test cases.
+jest.spyOn(object, methodName), jest.restoreAllMocks():
+Spies on methods of an object to track calls and mock their behavior.
+Restores all mocked methods back to their original implementations.

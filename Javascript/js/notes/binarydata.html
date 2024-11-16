@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Binary Data Example</title>
+</head>
+<body>
+    <h1>Working with Binary Data in JavaScript</h1>
+
+    <h2>1. ArrayBuffer & Typed Arrays</h2>
+    <p id="typed-array-output"></p>
+
+    <h2>2. Blob Example</h2>
+    <button id="create-blob-button">Create and Read Blob</button>
+    <p id="blob-output"></p>
+
+    <h2>3. Text Encoding & Decoding</h2>
+    <button id="encode-decode-button">Encode & Decode Text</button>
+    <p id="encode-decode-output"></p>
+
+    <h2>4. FileReader Example</h2>
+    <input type="file" id="file-input" />
+    <p id="file-output"></p>
+
+    <script>
+        // 1. ArrayBuffer & Typed Arrays Example
+        function typedArraysExample() {
+            // Create a 16-byte ArrayBuffer
+            const buffer = new ArrayBuffer(16); // Allocating 16 bytes (2^4 bytes)
+            
+            // Create a view of the buffer as a Uint8Array (8-bit unsigned integers)
+            const uint8Array = new Uint8Array(buffer);
+            
+            // Fill the Uint8Array with data
+            for (let i = 0; i < uint8Array.length; i++) {
+                uint8Array[i] = i * 3; // Example: multiples of 3
+            }
+
+            // Show the contents of the Typed Array
+            const output = document.getElementById('typed-array-output');
+            output.textContent = `Typed Array (Uint8Array) Data: ${Array.from(uint8Array).join(', ')}`;
+        }
+
+        // Call the function to show Typed Array Example
+        typedArraysExample();
+
+
+        // 2. Blob Example
+        document.getElementById('create-blob-button').addEventListener('click', function() {
+            // Create a Blob from some binary data (UTF-8 encoded string)
+            const text = "This is a Blob containing binary data!";
+            const blob = new Blob([text], { type: 'text/plain' });
+
+            // Display Blob's size and MIME type
+            const output = document.getElementById('blob-output');
+            output.textContent = `Created Blob with size: ${blob.size} bytes and type: ${blob.type}`;
+
+            // Read the Blob's content using FileReader
+            const reader = new FileReader();
+            reader.onload = function() {
+                console.log('Blob content:', reader.result); // Log Blob content to the console
+            };
+            reader.readAsText(blob); // Read the Blob as text
+        });
+
+
+        // 3. Text Encoding & Decoding Example
+        document.getElementById('encode-decode-button').addEventListener('click', function() {
+            // Text Encoding (Converting string to binary)
+            const text = "Hello, Binary Data!";
+            const encoder = new TextEncoder(); // Create a TextEncoder
+            const encoded = encoder.encode(text); // Encode the string into binary data
+            
+            // Text Decoding (Converting binary back to string)
+            const decoder = new TextDecoder(); // Create a TextDecoder
+            const decoded = decoder.decode(encoded); // Decode the binary data back to string
+
+            // Show results
+            const output = document.getElementById('encode-decode-output');
+            output.innerHTML = `
+                Encoded (Binary Data as Uint8Array): ${Array.from(encoded).join(', ')}<br>
+                Decoded Text: ${decoded}
+            `;
+        });
+
+
+        // 4. FileReader Example (Reading files from input)
+        document.getElementById('file-input').addEventListener('change', function(event) {
+            const file = event.target.files[0]; // Get the selected file
+
+            if (file) {
+                const reader = new FileReader();
+                
+                // Read the file as binary string
+                reader.onload = function(e) {
+                    const fileContent = e.target.result; // File content as binary string
+                    const output = document.getElementById('file-output');
+                    output.textContent = `File content (binary): ${fileContent}`;
+                    console.log('File content:', fileContent); // Log the content
+                };
+                
+                // Read the file as text (you can also read as ArrayBuffer, DataURL, etc.)
+                reader.readAsText(file); // Change this to `readAsArrayBuffer()` for binary data
+            }
+        });
+
+    </script>
+</body>
+</html>

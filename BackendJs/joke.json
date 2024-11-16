@@ -1,0 +1,24 @@
+{
+  "jokes": [
+    {
+      "id": 1,
+      "question": "Why did the scarecrow win an award?",
+      "answer": "Because he was outstanding in his field!"
+    },
+    {
+      "id": 2,
+      "question": "Why don't skeletons fight each other?",
+      "answer": "They don't have the guts!"
+    },
+    {
+      "id": 3,
+      "question": "Why did the bicycle fall over?",
+      "answer": "Because it was two-tired!"
+    },
+    {
+      "id": 4,
+      "question": "What did one hat say to the other hat?",
+      "answer": "You stay here, I'll go on ahead!"
+    }
+  ]
+}

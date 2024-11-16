@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Gilroy";
+      }
+      html,
+      body {
+        height: 100%;
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+      h1 {
+        font-size: 9vh;
+        font-weight: 900;
+        position: relative;
+      }
+      h1::after {
+        content: " bas"; /* complusary this line */
+        color: aqua;
+      }
+      h1::before {
+        content: " hello "; /* complusary this line */
+        color: rgb(8, 0, 255);
+      }
+
+      .box {
+        background-color: blueviolet;
+        width: 50vw;
+        height: 50vh;
+      }
+      .box::after {
+        /* after add ::after in element but content go after text */
+        content: " gap";
+        color: aqua;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>SOHAM MANJREKAR</h1>
+
+    <div class="box"><h2>hii</h2></div>
+  </body>
+</html>

@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <style>
+      .container {
+        display: flex;
+      }
+
+      .div1 {
+        background-color: lightblue;
+        width: 40%;
+        height: 100px;
+      }
+
+      .div2 {
+        background-color: lightcoral;
+        width: calc(60% - 10px); /* 60% of the container width minus 10px */
+        height: 100px;
+        margin-left: 10px; /* Add a margin to separate the divs */
+      }
+    </style>
+    <title>Calc() Example</title>
+  </head>
+  <body>
+    <div class="container">
+      <div class="div1"></div>
+      <div class="div2"></div>
+    </div>
+  </body>
+</html>

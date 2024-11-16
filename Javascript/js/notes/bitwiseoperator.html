@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bitwise Operators in JavaScript</title>
+</head>
+<body>
+    <h1>Bitwise Operators in JavaScript</h1>
+
+    <h2>1. Bitwise AND (&)</h2>
+    <p id="and-output"></p>
+
+    <h2>2. Bitwise OR (|)</h2>
+    <p id="or-output"></p>
+
+    <h2>3. Bitwise XOR (^)</h2>
+    <p id="xor-output"></p>
+
+    <h2>4. Bitwise NOT (~)</h2>
+    <p id="not-output"></p>
+
+    <h2>5. Bitwise Left Shift (<<)</h2>
+    <p id="left-shift-output"></p>
+
+    <h2>6. Bitwise Signed Right Shift (>>)</h2>
+    <p id="signed-right-shift-output"></p>
+
+    <h2>7. Bitwise Unsigned Right Shift (>>>):</h2>
+    <p id="unsigned-right-shift-output"></p>
+
+    <script>
+        // Example values
+        const a = 5;  // binary: 0101
+        const b = 3;  // binary: 0011
+
+        // 1. Bitwise AND (&)
+        const andResult = a & b; // 0101 & 0011 = 0001 (1 in decimal)
+        document.getElementById('and-output').textContent = `5 & 3 = ${andResult}`;
+
+        // 2. Bitwise OR (|)
+        const orResult = a | b;  // 0101 | 0011 = 0111 (7 in decimal)
+        document.getElementById('or-output').textContent = `5 | 3 = ${orResult}`;
+
+        // 3. Bitwise XOR (^)
+        const xorResult = a ^ b; // 0101 ^ 0011 = 0110 (6 in decimal)
+        document.getElementById('xor-output').textContent = `5 ^ 3 = ${xorResult}`;
+
+        // 4. Bitwise NOT (~)
+        const notResult = ~a;  // ~0101 = 1010 (two's complement of 5, which is -6 in decimal)
+        document.getElementById('not-output').textContent = `~5 = ${notResult}`;
+
+        // 5. Bitwise Left Shift (<<)
+        const leftShiftResult = a << 1;  // 0101 << 1 = 1010 (10 in decimal)
+        document.getElementById('left-shift-output').textContent = `5 << 1 = ${leftShiftResult}`;
+
+        // 6. Bitwise Signed Right Shift (>>)
+        const signedRightShiftResult = a >> 1;  // 0101 >> 1 = 0010 (2 in decimal)
+        const negativeNumber = -5;
+        const signedNegativeRightShift = negativeNumber >> 1;  // Negative number right shift
+        document.getElementById('signed-right-shift-output').textContent = 
+            `5 >> 1 = ${signedRightShiftResult}, -5 >> 1 = ${signedNegativeRightShift}`;
+
+        // 7. Bitwise Unsigned Right Shift (>>>)
+        const unsignedRightShiftResult = a >>> 1;  // 0101 >>> 1 = 0010 (2 in decimal)
+        const unsignedNegativeRightShift = negativeNumber >>> 1;  // Unsigned right shift
+        document.getElementById('unsigned-right-shift-output').textContent = 
+            `5 >>> 1 = ${unsignedRightShiftResult}, -5 >>> 1 = ${unsignedNegativeRightShift}`;
+    </script>
+</body>
+</html>

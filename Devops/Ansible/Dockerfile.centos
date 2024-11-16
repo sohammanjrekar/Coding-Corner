@@ -1,0 +1,17 @@
+FROM centos:latest
+
+# Install SSH server and Ansible
+RUN yum -y update && \
+    yum -y install openssh-server && \
+    yum clean all
+
+# Configure SSH
+RUN ssh-keygen -A && \
+    sed -i 's/#PermitRootLogin yes/PermitRootLogin yes/' /etc/ssh/sshd_config && \
+    echo 'root:password' | chpasswd && \
+    mkdir /var/run/sshd
+
+# Expose SSH port
+EXPOSE 22
+
+CMD ["/usr/sbin/sshd", "-D"]

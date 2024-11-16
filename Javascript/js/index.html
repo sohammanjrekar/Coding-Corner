@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        #btn1{
+            background-color: aqua;
+        }
+    </style>
+</head>
+<body>
+    <h1>Hii i am soham</h1>
+    <button id="btn1" onclick="raj()">click</button>
+</body>
+<script>
+    let count=0;
+    const raj=()=>{
+        const doc=document.querySelector("#btn1");
+        doc.textContent="click"+count++;
+
+    }
+    // const doc=document.getElementById("btn1");
+    alert("Hello")
+    const doc=document.querySelector("#btn1");
+    console.log(doc);
+    console.warn("Warning");
+    console.error("Error");
+   // document.querySelector("#btn")
+   // console.clear();
+</script>
+<script>
+    // Example 1: Basic arithmetic expression
+    let result1 = eval('2 + 2');
+    console.log(result1); // Output: 4
+
+    // Example 2: Using variables
+    let x = 5;
+    let y = 10;
+    let result2 = eval('x + y');
+    console.log(result2); // Output: 15
+
+    // Example 3: Dynamic code execution
+    let code = 'console.log("Hello, eval!");';
+    eval(code); // Output: Hello, eval!
+</script>
+</html>

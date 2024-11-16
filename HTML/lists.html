@@ -1,0 +1,181 @@
+<!-- *------------------------------------- -->
+<!--*  HTML LIST - ORDER VS UNORDERED TAG  
+<!-- *---------------------------------------- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&family=Urbanist:wght@300;400;600;700;800;900&display=swap");
+      html {
+        font-family: "jost", sans-serif;
+        background-color: #efefef;
+      }
+      h1 {
+        font-weight: bold;
+      }
+      li {
+        text-transform: capitalize;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>HTML LIST TAG</h1>
+    <ul style="list-style-type: none">
+      <li>apple</li>
+      <li>banana</li>
+      <li>pears</li>
+    </ul>
+    <hr />
+    <ol start="10">
+      <li>1st class</li>
+      <li>2nd class</li>
+      <li>3rd class</li>
+    </ol>
+    <hr />
+    <ul>
+      <li>
+        fruits
+        <ol>
+          <li>banana</li>
+          <li>
+            apple
+            <ul>
+              <li>red</li>
+              <li>green</li>
+            </ul>
+          </li>
+          <li>pears</li>
+        </ol>
+      </li>
+      <li>vegetables</li>
+      <li>meats</li>
+    </ul>
+    <hr />
+    <ul style="list-style: none; display: flex; gap: 15px">
+      <li><a href="https://thapatechnical.shop/" target="_blank"> Home </a></li>
+      <li>About</li>
+      <li>service</li>
+      <li>contact</li>
+    </ul>
+  </body>
+</html>
+
+<!-- 
+?Unordered List (<ul>) Example:  An unordered list is used to create a list of items that are not in any particular order. Each list item is marked with a bullet point.
+
+  
+Unordered List (<ul>) Styles:
+
+  Disc (list-style-type: disc;): Default style - filled circles.
+  Circle (list-style-type: circle;): Hollow circles.
+  Square (list-style-type: square;): Squares.
+  None (list-style-type: none;): No bullet points.
+
+      
+    
+Ordered List (<ol>) Example:
+   An ordered list is used to create a list of items in a specific order, typically indicated by numbers.
+
+
+Ordered List (<ol>) Styles:
+
+  Decimal (list-style-type: decimal;): Default style - decimal numbers.
+  Lowercase Letters (list-style-type: lower-alpha;): Lowercase letters (a, b, c).
+  Uppercase Letters (list-style-type: upper-alpha;): Uppercase letters (A, B, C).
+  Lowercase Roman Numerals (list-style-type: lower-roman;): Lowercase Roman numerals (i, ii, iii).
+  Uppercase Roman Numerals (list-style-type: upper-roman;): Uppercase Roman numerals (I, II, III) 
+
+-->
+
+<!-- *------------------------------------- -->
+<!--* INTERVIEW Q:  HTML LIST 
+<!-- *---------------------------------------- -->
+
+<!--? 1: What is the significance of the type attribute in ordered lists? -->
+<!-- Decimal Numbers (type="1"): This is the default style. It uses regular decimal numbers. 
+  Uppercase Letters (type="A"): It uses uppercase letters (A, B, C) as list item numbers.
+Lowercase Letters (type="a"): It uses lowercase letters (a, b, c) as list item numbers.
+Uppercase Roman Numerals (type="I"): It uses uppercase Roman numerals (I, II, III) as list item numbers.
+Lowercase Roman Numerals (type="i"): It uses lowercase Roman numerals (i, ii, iii) as list item numbers. -->
+
+<!--? 2: What is the use of the start attribute in ordered lists? -->
+
+<!--? 3: Explain the concept of nested lists  -->
+
+<!--? 4: How do you create a horizontal navigation menu using an unordered list? -->
+To create a horizontal navigation menu using an unordered list (`<ul>`), you can style it with CSS to display the list items horizontally rather than vertically. Here’s a step-by-step guide with code examples:
+
+  ### HTML Structure
+  
+  1. Start with a `<ul>` element for the navigation list.
+  2. Add each navigation link inside an `<li>` element.
+  
+  ### CSS Styling
+  
+  1. Use `display: flex` or `display: inline-block` to arrange the list items horizontally.
+  2. Remove the default list styling by setting `list-style-type` to `none`.
+  3. Adjust spacing and alignment as needed.
+  
+  Here’s a simple example:
+  
+  ```html
+  <!DOCTYPE html>
+  <html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Horizontal Navigation Menu</title>
+    <style>
+      /* Reset default list styling */
+      ul.nav-menu {
+        list-style-type: none;
+        margin: 0;
+        padding: 0;
+        display: flex; /* Display items in a row */
+      }
+  
+      /* Style each list item */
+      ul.nav-menu li {
+        margin-right: 20px; /* Space between items */
+      }
+  
+      /* Style the links */
+      ul.nav-menu li a {
+        text-decoration: none;
+        color: #333;
+        padding: 8px 12px;
+        display: block;
+      }
+  
+      /* Hover effect */
+      ul.nav-menu li a:hover {
+        background-color: #ddd;
+        color: #000;
+      }
+    </style>
+  </head>
+  <body>
+  
+    <!-- Navigation Menu -->
+    <ul class="nav-menu">
+      <li><a href="#home">Home</a></li>
+      <li><a href="#about">About</a></li>
+      <li><a href="#services">Services</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+  
+  </body>
+  </html>
+  ```
+  
+  ### Explanation
+  
+  - **`ul.nav-menu`**: The `display: flex` style arranges list items horizontally.
+  - **`li`**: Adds margin between items for spacing.
+  - **`a`**: Styles the links inside each list item with padding, color, and a hover effect.
+  
+  This creates a clean, horizontally aligned navigation menu. Adjust styles as needed for different designs!

@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=\, initial-scale=1.0" />
+    <title>Document</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Gilroy";
+      }
+      html,
+      body {
+        height: 100%;
+        width: 100%;
+      }
+      .loader {
+        margin: auto;
+        margin-top: 20vh;
+        height: 110px;
+        width: 110px;
+
+        border: 9px solid #ddd;
+        border-radius: 50%;
+        border-top-color: rgb(37, 203, 145);
+        animation: anime 0.8s infinite;
+      }
+      @keyframes anime {
+        100% {
+          rotate: 360deg;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="loader"></div>
+  </body>
+</html>

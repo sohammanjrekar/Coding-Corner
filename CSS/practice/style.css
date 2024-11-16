@@ -1,0 +1,55 @@
+#passage {
+  color: aqua;
+}
+#passage:hover {
+  color: red;
+  background-color: blueviolet;
+}
+
+.dia {
+  background-color: blue;
+  height: 100vh;
+  width: 100%;
+  background-repeat: no-repeat;
+  background-image: url("./../images/brand.png");
+  /* background-size: cover;l */
+  background-position: right bottom;
+}
+
+.a {
+  background-image: url(a.jpg);
+  width: 100vw;
+}
+.b {
+  background-image: url(b.jpg);
+  width: 100vw;
+}
+.c {
+  background-image: url(c.jpg);
+  width: 100vw;
+}
+.d {
+  background-image: url(d.jpg);
+  width: 100vw;
+}
+.fix{
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-attachment: fixed;
+    width: 100vw;
+    height: 100vh;
+    display: grid;
+    place-items: center;
+}
+h1{
+    
+    font-weight: 900;
+    color: white;
+    font-size: 20vh;
+    
+}
+.grad{
+    height: 60vh;
+    width: 100%;
+    background-image: radial-gradient(circle,blue,red,yellow);
+}

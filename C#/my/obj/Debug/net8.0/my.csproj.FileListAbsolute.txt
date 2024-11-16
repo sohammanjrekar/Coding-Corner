@@ -1,0 +1,5 @@
+C:\Users\mrsoh\Downloads\WEB-DEV-All-things\c#\my\obj\Debug\net8.0\my.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\mrsoh\Downloads\WEB-DEV-All-things\c#\my\obj\Debug\net8.0\my.AssemblyInfoInputs.cache
+C:\Users\mrsoh\Downloads\WEB-DEV-All-things\c#\my\obj\Debug\net8.0\my.AssemblyInfo.cs
+C:\Users\mrsoh\Downloads\WEB-DEV-All-things\c#\my\obj\Debug\net8.0\my.csproj.CoreCompileInputs.cache
+C:\Users\mrsoh\Downloads\WEB-DEV-All-things\c#\my\obj\Debug\net8.0\my.sourcelink.json
