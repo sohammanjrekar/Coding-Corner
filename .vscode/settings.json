@@ -1,6 +1,8 @@
 {
     "files.associations": {
-        "ENUMS.C": "cpp"
+        "ENUMS.C": "cpp",
+        "xstring": "cpp",
+        "algorithm": "cpp"
     },
     "dart.showTodos": false
 }
