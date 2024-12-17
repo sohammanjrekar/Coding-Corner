@@ -44,8 +44,31 @@
 # else:
 #     print("loop completed")
 
-def custom_sum(*n):
-    return sum(n)  # Uses the built-in sum function
+# def custom_sum(*n):
+#     return sum(n)  # Uses the built-in sum function
 
-print(custom_sum(1, 2, 3, 4, 5))  # Output: 15
-print(custom_sum(1, 2))           # Output: 3
+# print(custom_sum(1, 2, 3, 4, 5))  # Output: 15
+# print(custom_sum(1, 2))           # Output: 3
+
+
+# (lambda:print("hello"))()
+# greet=lambda:print("sum  of my")
+# greet()
+
+# import os
+# print(dir(os))
+# class Test:
+#     def __init__(self, name):
+#         self.name = name
+#         print(f"Object created with name: {self.name}")
+
+# # Creating an object
+# obj = Test("Soham")
+
+
+def is_odd(num):
+    return (num%2)!=0
+
+numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+obj=filter(is_odd, numbers)
+print(list(obj))
