@@ -4,5 +4,6 @@
         "xstring": "cpp",
         "algorithm": "cpp"
     },
-    "dart.showTodos": false
+    "dart.showTodos": false,
+    "java.compile.nullAnalysis.mode": "automatic"
 }
