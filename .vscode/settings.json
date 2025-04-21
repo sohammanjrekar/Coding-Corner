@@ -5,5 +5,6 @@
         "algorithm": "cpp"
     },
     "dart.showTodos": false,
-    "java.compile.nullAnalysis.mode": "automatic"
+    "java.compile.nullAnalysis.mode": "automatic",
+    "CodeGPT.apiKey": "CodeGPT Plus Beta"
 }
