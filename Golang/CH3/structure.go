@@ -35,7 +35,7 @@ type Employee struct {
 	EmployeeID string
 }
 
-func main() {
+func structs() {
 	p := Person{Name: "Alice", Age: 30, Job: "Engineer", Salary: 9000}
 	p.Greet()
 	p.HaveBirthday()
