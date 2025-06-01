@@ -7,5 +7,10 @@ func main() {
 	//enums()
 	//generics()
 	//goroutine()
-	channels()
+	//channels()
+	//mutex()
+	//files()
+	//packages()
+	//cobras()
+	//jsons()
 }

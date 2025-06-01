@@ -5,42 +5,54 @@ import (
 	"sync"
 )
 
-// channels demonstrates concurrent communication using channels and goroutines
+// prints receives a number and prints it, then signals completion
+func prints(num int, wg *sync.WaitGroup) {
+	defer wg.Done()
+	fmt.Println("Processed:", num)
+}
+
+// channels demonstrates using unbuffered channels, goroutines, and select
 func channels() {
-	fmt.Println("== Channels Example ==")
+	fmt.Println("== Channels and Select Example ==")
 
-	ch := make(chan int)  // Create a channel for int values
-	var wg sync.WaitGroup // WaitGroup to wait for all goroutines
+	ch := make(chan int)
+	chan1 := make(chan int)
+	chan2 := make(chan string)
+	var wg sync.WaitGroup
 
-	// Producer: sends values to the channel
+	// Producer: send numbers to 'ch'
 	go func() {
-		for i := 0; i < 10; i++ {
+		for i := 0; i < 5; i++ {
 			ch <- i
 		}
-		close(ch) // Close channel after sending
+		close(ch)
 	}()
 
-	// Consumer: reads from channel and processes values concurrently
+	// Consumer: reads from 'ch' and processes concurrently
 	for num := range ch {
 		wg.Add(1)
 		go prints(num, &wg)
 	}
-	chan1 = make(chan int)
-	chan2 = make(chan string)
-	go f var chan1 chan int
-	chan1 <- 10
-	}0
+
+	// Send data to chan1 and chan2 concurrently
 	go func() {
-	chan2 < "pong"
-	30)
-	for i = 0; i < 2; i+ {
-	select {
-	case chan1Val := <-chan1:
-	fmt.Println("received data from chani", chan1Val)
-		case chan2Val := <-chan2:
-			fmt.Println("received data from chan2", chan2Val)
-		}
+		chan1 <- 10
 	}()
-	wg.Wait() // Wait for all goroutines to finish
+
+	go func() {
+		chan2 <- "pong"
+	}()
+
+	// Use select to receive from either chan1 or chan2
+	for i := 0; i < 2; i++ {
+		select {
+		case val1 := <-chan1:
+			fmt.Println("Received from chan1:", val1)
+		case val2 := <-chan2:
+			fmt.Println("Received from chan2:", val2)
+		}
+	}
+
+	wg.Wait()
 	fmt.Println("All goroutines finished processing.")
-				}
+}
