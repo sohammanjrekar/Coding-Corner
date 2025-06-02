@@ -1,0 +1,503 @@
+fiber-app/
+├── cmd/                   # Entry points for apps (main.go)
+│   └── server/
+│       └── main.go
+├── config/                # Configuration files (env, config loader)
+│   └── config.go
+├── internal/              # Business logic (Usecases)
+│   ├── user/              # Example domain
+│   │   ├── handler.go     # HTTP handlers
+│   │   ├── service.go     # Business logic
+│   │   ├── repository.go  # DB interactions
+│   │   └── model.go       # Structs/models
+├── pkg/                   # Reusable packages (logger, utils)
+│   ├── logger/
+│   │   └── logger.go
+│   └── utils/
+├── routes/                # API route definitions
+│   └── routes.go
+├── middleware/            # Custom middlewares (auth, logging, etc.)
+│   └── auth.go
+├── db/                    # Database setup (migration, connection)
+│   ├── postgres.go
+│   └── migrate.go
+├── go.mod
+└── .env
+mkdir fiber-app\cmd\server fiber-app\config fiber-app\internal\user fiber-app\pkg\logger fiber-app\pkg\utils fiber-app\routes fiber-app\middleware fiber-app\db
+type nul > fiber-app\cmd\server\main.go
+type nul > fiber-app\config\config.go
+type nul > fiber-app\internal\user\handler.go
+type nul > fiber-app\internal\user\service.go
+type nul > fiber-app\internal\user\repository.go
+type nul > fiber-app\internal\user\model.go
+type nul > fiber-app\pkg\logger\logger.go
+type nul > fiber-app\pkg\utils\utils.go
+type nul > fiber-app\routes\routes.go
+type nul > fiber-app\middleware\auth.go
+type nul > fiber-app\db\postgres.go
+type nul > fiber-app\db\migrate.go
+type nul > fiber-app\go.mod
+type nul > fiber-app\.env
+✅ Directory Breakdown: internal/user/
+bash
+Copy code
+internal/user/
+├── handler.go       # HTTP layer - handles requests/responses
+├── service.go       # Business logic / services layer
+├── repository.go    # Repository layer - DB access functions
+├── model.go         # Models (structs for DB + DTOs)
+📄 model.go
+This file contains:
+Database models (structs that map to PostgreSQL tables)
+DTOs (Data Transfer Objects) used for request/response bodies
+go
+Copy code
+package user
+type User struct {
+	ID       int    `json:"id"`
+	Name     string `json:"name"`
+	Email    string `json:"email"`
+	Password string `json:"-"` // Don't expose password in JSON
+}
+type RegisterRequest struct {
+	Name     string `json:"name"`
+	Email    string `json:"email"`
+	Password string `json:"password"`
+}
+type LoginRequest struct {
+	Email    string `json:"email"`
+	Password string `json:"password"`
+}
+📄 repository.go
+This file interacts directly with the database (PostgreSQL). Example:
+go
+Copy code
+package user
+import (
+	"context"
+	"github.com/yourusername/fiber-app/db"
+)
+type Repository interface {
+	CreateUser(ctx context.Context, u User) error
+	GetUserByEmail(ctx context.Context, email string) (User, error)
+}
+type userRepo struct{}
+func NewRepository() Repository {
+	return &userRepo{}
+}
+func (r *userRepo) CreateUser(ctx context.Context, u User) error {
+	_, err := db.DB.Exec(ctx, `INSERT INTO users(name, email, password) VALUES ($1, $2, $3)`, u.Name, u.Email, u.Password)
+	return err
+}
+func (r *userRepo) GetUserByEmail(ctx context.Context, email string) (User, error) {
+	var u User
+	err := db.DB.QueryRow(ctx, `SELECT id, name, email, password FROM users WHERE email = $1`, email).
+		Scan(&u.ID, &u.Name, &u.Email, &u.Password)
+	return u, err
+}
+📄 service.go
+This wraps the repository and handles JWT generation, password hashing, etc.
+go
+Copy code
+package user
+import (
+	"context"
+	"github.com/yourusername/fiber-app/pkg/utils"
+)
+type Service interface {
+	Register(ctx context.Context, input RegisterRequest) error
+	Login(ctx context.Context, input LoginRequest) (string, error)
+}
+type userService struct {
+	repo Repository
+}
+func NewService(r Repository) Service {
+	return &userService{repo: r}
+}
+func (s *userService) Register(ctx context.Context, input RegisterRequest) error {
+	hash, _ := utils.HashPassword(input.Password)
+	user := User{Name: input.Name, Email: input.Email, Password: hash}
+	return s.repo.CreateUser(ctx, user)
+}
+func (s *userService) Login(ctx context.Context, input LoginRequest) (string, error) {
+	user, err := s.repo.GetUserByEmail(ctx, input.Email)
+	if err != nil || !utils.CheckPasswordHash(input.Password, user.Password) {
+		return "", err
+	}
+	return utils.GenerateJWT(user.ID)
+}
+📄 handler.go
+This is the HTTP layer. It connects the Fiber routes to the service.
+go
+Copy code
+package user
+import "github.com/gofiber/fiber/v2"
+var userService Service
+func InitHandlers(service Service) {
+	userService = service
+}
+func Register(c *fiber.Ctx) error {
+	var req RegisterRequest
+	if err := c.BodyParser(&req); err != nil {
+		return c.Status(400).JSON(fiber.Map{"error": "Invalid body"})
+	}
+	if err := userService.Register(c.Context(), req); err != nil {
+		return c.Status(500).JSON(fiber.Map{"error": "Could not register user"})
+	}
+	return c.JSON(fiber.Map{"message": "Registered successfully"})
+}
+func Login(c *fiber.Ctx) error {
+	var req LoginRequest
+	if err := c.BodyParser(&req); err != nil {
+		return c.Status(400).JSON(fiber.Map{"error": "Invalid body"})
+	}
+	token, err := userService.Login(c.Context(), req)
+	if err != nil {
+		return c.Status(401).JSON(fiber.Map{"error": "Invalid credentials"})
+	}
+	return c.JSON(fiber.Map{"token": token})
+}
+✅ Summary of Placement:
+Component	File	Folder
+Model structs	model.go	internal/user/
+DB logic	repository.go	internal/user/
+Service logic	service.go	internal/user/
+HTTP handlers	handler.go	internal/user/
+🔧 Step-by-Step Setup
+1. Initialize project
+bash
+Copy code
+mkdir fiber-app && cd fiber-app
+go mod init github.com/yourusername/fiber-app
+2. Install Required Packages
+bash
+Copy code
+go get github.com/gofiber/fiber/v2
+go get github.com/joho/godotenv             # For loading .env
+go get github.com/gofiber/logger/v2         # Middleware logging
+go get github.com/jackc/pgx/v5              # PostgreSQL driver
+🧠 Core Files Explained
+3. cmd/server/main.go
+go
+Copy code
+package main
+import (
+	"log"
+	"github.com/yourusername/fiber-app/config"
+	"github.com/yourusername/fiber-app/routes"
+	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/logger"
+)
+func main() {
+	config.LoadEnv()
+	app := fiber.New()
+	app.Use(logger.New()) // Logging middleware
+	routes.SetupRoutes(app)
+	log.Fatal(app.Listen(":" + config.PORT))
+}
+4. config/config.go
+package config
+import (
+	"log"
+	"os"
+	"github.com/joho/godotenv"
+)
+var PORT string
+func LoadEnv() {
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
+	PORT = os.Getenv("PORT")
+}
+5. .env
+PORT=8080
+DATABASE_URL=postgres://user:password@localhost:5432/dbname
+6. routes/routes.go
+package routes
+import (
+	"github.com/gofiber/fiber/v2"
+	"github.com/yourusername/fiber-app/internal/user"
+)
+func SetupRoutes(app *fiber.App) {
+	api := app.Group("/api")
+	userRoutes := api.Group("/users")
+	userRoutes.Get("/", user.GetUsers)
+	userRoutes.Post("/", user.CreateUser)
+}
+7. internal/user/handler.go
+package user
+import "github.com/gofiber/fiber/v2"
+func GetUsers(c *fiber.Ctx) error {
+	return c.JSON(fiber.Map{
+		"message": "List of users",
+	})
+}
+func CreateUser(c *fiber.Ctx) error {
+	// handle creation
+	return c.JSON(fiber.Map{
+		"message": "User created",
+	})
+}
+🧰 Optional Additions (For Production)
+Feature	Tool/Package
+Environment config	github.com/joho/godotenv
+Logging	github.com/gofiber/logger/v2
+JWT Auth	github.com/gofiber/jwt/v3
+PostgreSQL	github.com/jackc/pgx/v5
+Migrations	github.com/golang-migrate/migrate/v4
+Validation	github.com/go-playground/validator/v10
+Rate Limiting	github.com/gofiber/limiter/v2
+Swagger Docs	github.com/swaggo/fiber-swagger (with swag init)
+📌 Best Practices
+Use .env for configs.
+Separate logic: handlers ≠ services ≠ repositories.
+Keep internal/ domain-centric, e.g., user, product, etc.
+Add proper logging using custom middleware/logger.
+Write unit tests inside internal/xyz/xyz_test.go.
+Use interfaces for service and repo layers to allow mocking.
+Great! Here's a **complete Go Fiber project setup** with:
+✅ PostgreSQL integration
+✅ JWT authentication
+✅ Docker support
+✅ Clean and production-ready structure
+---
+## 📦 Project Structure (Updated)
+```
+fiber-app/
+├── cmd/server/main.go
+├── config/config.go
+├── db/postgres.go
+├── internal/user/
+│   ├── handler.go
+│   ├── model.go
+│   ├── repository.go
+│   ├── service.go
+├── middleware/jwt.go
+├── routes/routes.go
+├── pkg/utils/utils.go
+├── .env
+├── Dockerfile
+├── docker-compose.yml
+├── go.mod
+├── go.sum
+```
+---
+## 🔧 Setup Instructions
+### 1. `.env` File
+```env
+PORT=8080
+DATABASE_URL=postgres://postgres:postgres@db:5432/fiber_db?sslmode=disable
+JWT_SECRET=mysecretkey
+```
+---
+### 2. `Dockerfile`
+```dockerfile
+# syntax=docker/dockerfile:1
+FROM golang:1.21-alpine
+WORKDIR /app
+COPY go.mod ./
+COPY go.sum ./
+RUN go mod download
+COPY . .
+RUN go build -o main ./cmd/server/main.go
+EXPOSE 8080
+CMD ["./main"]
+```
+---
+### 3. `docker-compose.yml`
+```yaml
+version: '3.8'
+services:
+  db:
+    image: postgres:15
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: fiber_db
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+  api:
+    build: .
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+    env_file:
+      - .env
+volumes:
+  pgdata:
+```
+---
+### 4. `db/postgres.go`
+```go
+package db
+import (
+	"context"
+	"fmt"
+	"os"
+	"time"
+	"github.com/jackc/pgx/v5/pgxpool"
+)
+var DB *pgxpool.Pool
+func Connect() error {
+	dsn := os.Getenv("DATABASE_URL")
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	pool, err := pgxpool.New(ctx, dsn)
+	if err != nil {
+		return err
+	}
+	err = pool.Ping(ctx)
+	if err != nil {
+		return err
+	}
+	DB = pool
+	fmt.Println("Connected to PostgreSQL!")
+	return nil
+}
+```
+---
+### 5. `middleware/jwt.go`
+```go
+package middleware
+import (
+	"os"
+	"github.com/gofiber/fiber/v2/middleware/jwt/v3"
+)
+func JWTProtected() fiber.Handler {
+	return jwt.New(jwt.Config{
+		SigningKey:   []byte(os.Getenv("JWT_SECRET")),
+		ErrorHandler: jwtError,
+	})
+}
+func jwtError(c *fiber.Ctx, err error) error {
+	return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+		"error": "Unauthorized",
+	})
+}
+```
+---
+### 6. `internal/user/handler.go` (includes login & register)
+```go
+package user
+import (
+	"github.com/gofiber/fiber/v2"
+	"github.com/yourusername/fiber-app/db"
+	"github.com/yourusername/fiber-app/pkg/utils"
+)
+func Register(c *fiber.Ctx) error {
+	var user User
+	if err := c.BodyParser(&user); err != nil {
+		return c.Status(400).JSON(fiber.Map{"error": "Cannot parse JSON"})
+	}
+	hash, _ := utils.HashPassword(user.Password)
+	user.Password = hash
+	_, err := db.DB.Exec(c.Context(), `INSERT INTO users(name, email, password) VALUES($1, $2, $3)`, user.Name, user.Email, user.Password)
+	if err != nil {
+		return c.Status(500).JSON(fiber.Map{"error": "User creation failed"})
+	}
+	return c.JSON(fiber.Map{"message": "Registered"})
+}
+func Login(c *fiber.Ctx) error {
+	var input LoginRequest
+	if err := c.BodyParser(&input); err != nil {
+		return c.Status(400).JSON(fiber.Map{"error": "Invalid input"})
+	}
+	var user User
+	err := db.DB.QueryRow(c.Context(), `SELECT id, name, email, password FROM users WHERE email=$1`, input.Email).
+		Scan(&user.ID, &user.Name, &user.Email, &user.Password)
+	if err != nil || !utils.CheckPasswordHash(input.Password, user.Password) {
+		return c.Status(401).JSON(fiber.Map{"error": "Invalid credentials"})
+	}
+	token, _ := utils.GenerateJWT(user.ID)
+	return c.JSON(fiber.Map{"token": token})
+}
+```
+---
+### 7. `pkg/utils/utils.go`
+```go
+package utils
+import (
+	"os"
+	"time"
+	"github.com/golang-jwt/jwt/v5"
+	"golang.org/x/crypto/bcrypt"
+)
+func HashPassword(password string) (string, error) {
+	bytes, err := bcrypt.GenerateFromPassword([]byte(password), 14)
+	return string(bytes), err
+}
+func CheckPasswordHash(password, hash string) bool {
+	return bcrypt.CompareHashAndPassword([]byte(hash), []byte(password)) == nil
+}
+func GenerateJWT(userID int) (string, error) {
+	claims := jwt.MapClaims{
+		"user_id": userID,
+		"exp":     time.Now().Add(time.Hour * 24).Unix(),
+	}
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	return token.SignedString([]byte(os.Getenv("JWT_SECRET")))
+}
+```
+---
+### 8. `routes/routes.go`
+```go
+package routes
+import (
+	"github.com/gofiber/fiber/v2"
+	"github.com/yourusername/fiber-app/internal/user"
+	"github.com/yourusername/fiber-app/middleware"
+)
+func SetupRoutes(app *fiber.App) {
+	api := app.Group("/api")
+	api.Post("/register", user.Register)
+	api.Post("/login", user.Login)
+	protected := api.Group("/protected")
+	protected.Use(middleware.JWTProtected())
+	protected.Get("/dashboard", func(c *fiber.Ctx) error {
+		return c.JSON(fiber.Map{"message": "Welcome to the dashboard"})
+	})
+}
+```
+---
+### 9. `cmd/server/main.go`
+```go
+package main
+import (
+	"log"
+	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/logger"
+	"github.com/joho/godotenv"
+	"github.com/yourusername/fiber-app/db"
+	"github.com/yourusername/fiber-app/routes"
+)
+func main() {
+	if err := godotenv.Load(); err != nil {
+		log.Fatal("No .env file")
+	}
+	if err := db.Connect(); err != nil {
+		log.Fatal("Database connection failed:", err)
+	}
+	app := fiber.New()
+	app.Use(logger.New())
+	routes.SetupRoutes(app)
+	log.Fatal(app.Listen(":8080"))
+}
+```
+---
+## 🏁 Run the App
+### 🐳 Docker Build & Run
+```bash
+docker-compose up --build
+```
+---
+## 🧪 Test API
+* `POST /api/register` with `{ "name": "John", "email": "john@mail.com", "password": "123456" }`
+* `POST /api/login` returns a `JWT`
+* `GET /api/protected/dashboard` requires `Authorization: Bearer <token>`
+---
+Would you like me to generate a **GitHub repo** or ZIP file of this setup for quick use?

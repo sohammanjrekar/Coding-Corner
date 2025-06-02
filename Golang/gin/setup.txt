@@ -1,0 +1,353 @@
+Here's the **standard, production-grade Gin + PostgreSQL + JWT + Docker** setup with the same clean architecture as your Fiber project.
+---
+## 📦 Gin Project Structure
+```
+gin-app/
+├── cmd/
+│   └── server/
+│       └── main.go
+├── config/
+│   └── config.go
+├── internal/
+│   └── user/
+│       ├── handler.go
+│       ├── service.go
+│       ├── repository.go
+│       └── model.go
+├── pkg/
+│   ├── logger/
+│   │   └── logger.go
+│   └── utils/
+│       └── utils.go
+├── routes/
+│   └── routes.go
+├── middleware/
+│   └── auth.go
+├── db/
+│   ├── postgres.go
+│   └── migrate.go
+├── .env
+├── Dockerfile
+├── docker-compose.yml
+├── go.mod
+└── go.sum
+```
+cmd: 
+mkdir gin-app\cmd\server gin-app\config gin-app\internal\user gin-app\pkg\logger gin-app\pkg\utils gin-app\routes gin-app\middleware gin-app\db
+type nul > gin-app\cmd\server\main.go
+type nul > gin-app\config\config.go
+type nul > gin-app\internal\user\handler.go
+type nul > gin-app\internal\user\service.go
+type nul > gin-app\internal\user\repository.go
+type nul > gin-app\internal\user\model.go
+type nul > gin-app\pkg\logger\logger.go
+type nul > gin-app\pkg\utils\utils.go
+type nul > gin-app\routes\routes.go
+type nul > gin-app\middleware\auth.go
+type nul > gin-app\db\postgres.go
+type nul > gin-app\db\migrate.go
+type nul > gin-app\.env
+type nul > gin-app\Dockerfile
+type nul > gin-app\docker-compose.yml
+type nul > gin-app\go.mod
+type nul > gin-app\go.sum
+---
+## 🔧 .env
+```env
+PORT=8080
+DATABASE_URL=postgres://postgres:postgres@db:5432/gin_db?sslmode=disable
+JWT_SECRET=mysecretkey
+```
+---
+## 🐳 Docker Setup
+### Dockerfile
+```Dockerfile
+FROM golang:1.21-alpine
+WORKDIR /app
+COPY go.mod ./
+COPY go.sum ./
+RUN go mod download
+COPY . .
+RUN go build -o main ./cmd/server/main.go
+EXPOSE 8080
+CMD ["./main"]
+```
+### docker-compose.yml
+```yaml
+version: '3.8'
+services:
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: gin_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+  api:
+    build: .
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+    env_file:
+      - .env
+volumes:
+  pgdata:
+```
+---
+## 📁 Key Components
+### db/postgres.go
+```go
+package db
+import (
+	"context"
+	"fmt"
+	"os"
+	"time"
+	"github.com/jackc/pgx/v5/pgxpool"
+)
+var DB *pgxpool.Pool
+func Connect() error {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	dsn := os.Getenv("DATABASE_URL")
+	pool, err := pgxpool.New(ctx, dsn)
+	if err != nil {
+		return err
+	}
+	if err := pool.Ping(ctx); err != nil {
+		return err
+	}
+	DB = pool
+	fmt.Println("Connected to PostgreSQL!")
+	return nil
+}
+```
+---
+### internal/user/model.go
+```go
+package user
+type User struct {
+	ID       int    `json:"id"`
+	Name     string `json:"name"`
+	Email    string `json:"email"`
+	Password string `json:"-"`
+}
+type RegisterRequest struct {
+	Name     string `json:"name"`
+	Email    string `json:"email"`
+	Password string `json:"password"`
+}
+type LoginRequest struct {
+	Email    string `json:"email"`
+	Password string `json:"password"`
+}
+```
+---
+### internal/user/repository.go
+```go
+package user
+import (
+	"context"
+	"github.com/yourusername/gin-app/db"
+)
+type Repository interface {
+	CreateUser(ctx context.Context, u User) error
+	GetUserByEmail(ctx context.Context, email string) (User, error)
+}
+type userRepo struct{}
+func NewRepository() Repository {
+	return &userRepo{}
+}
+func (r *userRepo) CreateUser(ctx context.Context, u User) error {
+	_, err := db.DB.Exec(ctx, `INSERT INTO users(name, email, password) VALUES ($1, $2, $3)`, u.Name, u.Email, u.Password)
+	return err
+}
+func (r *userRepo) GetUserByEmail(ctx context.Context, email string) (User, error) {
+	var u User
+	err := db.DB.QueryRow(ctx, `SELECT id, name, email, password FROM users WHERE email = $1`, email).
+		Scan(&u.ID, &u.Name, &u.Email, &u.Password)
+	return u, err
+}
+```
+---
+### internal/user/service.go
+```go
+package user
+import (
+	"context"
+	"github.com/yourusername/gin-app/pkg/utils"
+)
+type Service interface {
+	Register(ctx context.Context, input RegisterRequest) error
+	Login(ctx context.Context, input LoginRequest) (string, error)
+}
+type userService struct {
+	repo Repository
+}
+func NewService(r Repository) Service {
+	return &userService{repo: r}
+}
+func (s *userService) Register(ctx context.Context, input RegisterRequest) error {
+	hash, _ := utils.HashPassword(input.Password)
+	user := User{Name: input.Name, Email: input.Email, Password: hash}
+	return s.repo.CreateUser(ctx, user)
+}
+func (s *userService) Login(ctx context.Context, input LoginRequest) (string, error) {
+	user, err := s.repo.GetUserByEmail(ctx, input.Email)
+	if err != nil || !utils.CheckPasswordHash(input.Password, user.Password) {
+		return "", err
+	}
+	return utils.GenerateJWT(user.ID)
+}
+```
+---
+### internal/user/handler.go
+```go
+package user
+import (
+	"net/http"
+	"github.com/gin-gonic/gin"
+)
+var userService Service
+func InitHandlers(s Service) {
+	userService = s
+}
+func Register(c *gin.Context) {
+	var req RegisterRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid input"})
+		return
+	}
+	if err := userService.Register(c.Request.Context(), req); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Registration failed"})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"message": "Registered"})
+}
+func Login(c *gin.Context) {
+	var req LoginRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid input"})
+		return
+	}
+	token, err := userService.Login(c.Request.Context(), req)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid credentials"})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"token": token})
+}
+```
+---
+### middleware/auth.go
+```go
+package middleware
+import (
+	"net/http"
+	"os"
+	"strings"
+	"github.com/gin-gonic/gin"
+	"github.com/golang-jwt/jwt/v5"
+)
+func JWTAuth() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		auth := c.GetHeader("Authorization")
+		if auth == "" || !strings.HasPrefix(auth, "Bearer ") {
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Missing token"})
+			return
+		}
+		tokenString := strings.TrimPrefix(auth, "Bearer ")
+		token, err := jwt.Parse(tokenString, func(t *jwt.Token) (interface{}, error) {
+			return []byte(os.Getenv("JWT_SECRET")), nil
+		})
+		if err != nil || !token.Valid {
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Invalid token"})
+			return
+		}
+		c.Next()
+	}
+}
+```
+---
+### pkg/utils/utils.go
+```go
+package utils
+import (
+	"os"
+	"time"
+	"github.com/golang-jwt/jwt/v5"
+	"golang.org/x/crypto/bcrypt"
+)
+func HashPassword(password string) (string, error) {
+	bytes, err := bcrypt.GenerateFromPassword([]byte(password), 14)
+	return string(bytes), err
+}
+func CheckPasswordHash(password, hash string) bool {
+	return bcrypt.CompareHashAndPassword([]byte(hash), []byte(password)) == nil
+}
+func GenerateJWT(userID int) (string, error) {
+	claims := jwt.MapClaims{
+		"user_id": userID,
+		"exp":     time.Now().Add(time.Hour * 24).Unix(),
+	}
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	return token.SignedString([]byte(os.Getenv("JWT_SECRET")))
+}
+```
+---
+### routes/routes.go
+```go
+package routes
+import (
+	"github.com/gin-gonic/gin"
+	"github.com/yourusername/gin-app/internal/user"
+	"github.com/yourusername/gin-app/middleware"
+)
+func Setup(r *gin.Engine, svc user.Service) {
+	user.InitHandlers(svc)
+	api := r.Group("/api")
+	api.POST("/register", user.Register)
+	api.POST("/login", user.Login)
+	protected := api.Group("/protected", middleware.JWTAuth())
+	protected.GET("/dashboard", func(c *gin.Context) {
+		c.JSON(200, gin.H{"message": "Welcome to the protected route"})
+	})
+}
+```
+---
+### cmd/server/main.go
+```go
+package main
+import (
+	"log"
+	"os"
+	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
+	"github.com/yourusername/gin-app/db"
+	"github.com/yourusername/gin-app/internal/user"
+	"github.com/yourusername/gin-app/routes"
+)
+func main() {
+	_ = godotenv.Load()
+	if err := db.Connect(); err != nil {
+		log.Fatal("DB connection error:", err)
+	}
+	repo := user.NewRepository()
+	svc := user.NewService(repo)
+	r := gin.Default()
+	routes.Setup(r, svc)
+	port := os.Getenv("PORT")
+	log.Fatal(r.Run(":" + port))
+}
+```
+---
+## 🧪 API Test Flow
+1. `POST /api/register`
+2. `POST /api/login` → returns JWT
+3. `GET /api/protected/dashboard` with `Authorization: Bearer <token>`
+---
+Would you like this full code as a downloadable ZIP or GitHub repo template?
