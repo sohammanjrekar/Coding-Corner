@@ -33,3 +33,11 @@ for i in range(10):
         print("Skipping even number:", i)
         continue
     print("Odd number:", i)
+
+
+    #pass statement
+for i in range(5):  
+    if i == 2:
+        print("Skipping 2")
+        pass  # Do nothing, just a placeholder
+    print("Number:", i)
