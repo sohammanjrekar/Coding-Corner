@@ -156,7 +156,6 @@ if __name__ == "__main__":
         print("Current max:", max_heap.peek() if not max_heap.is_empty() else "Heap is now empty")
         max_heap.visualize_heap("Max Heap After Extraction")
 
-
 # ✅ 1. Min Heap Library in Python
 # Python’s heapq module provides a binary min-heap implementation.
 
